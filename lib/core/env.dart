@@ -5,6 +5,9 @@ abstract final class Env {
     'SUPABASE_PUBLISHABLE_KEY',
   );
 
+  /// Mode pratinjau desain: tanpa Supabase, memakai data contoh.
+  static const pratinjau = bool.fromEnvironment('PRATINJAU');
+
   static bool get lengkap =>
       supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

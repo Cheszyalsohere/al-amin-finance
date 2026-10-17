@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
+import 'contoh/pratinjau.dart';
 import 'core/env.dart';
+import 'features/auth/auth_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID');
+
+  if (Env.pratinjau) {
+    runApp(
+      ProviderScope(
+        overrides: [authRepositoryProvider.overrideWithValue(RepoPratinjau())],
+        child: const App(),
+      ),
+    );
+    return;
+  }
 
   if (!Env.lengkap) {
     runApp(const _KonfigurasiKosong());

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/env.dart';
 import 'core/router.dart';
 import 'core/theme.dart';
 
@@ -13,17 +15,34 @@ class App extends ConsumerWidget {
       title: 'Keuangan Al-Amin',
       debugShowCheckedModeBanner: false,
       theme: buatTema(),
+      locale: const Locale('id'),
+      supportedLocales: const [Locale('id')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: ref.watch(routerProvider),
       // Aplikasi dirancang untuk HP; di layar lebar tampil selebar HP di tengah.
-      builder: (context, child) => ColoredBox(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: child,
+      builder: (context, child) {
+        final halaman = ColoredBox(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: child,
+            ),
           ),
-        ),
-      ),
+        );
+        if (!Env.pratinjau) return halaman;
+        return Banner(
+          message: 'CONTOH',
+          location: BannerLocation.topEnd,
+          color: Neo.pink,
+          textStyle: const TextStyle(
+            color: Neo.tinta,
+            fontWeight: FontWeight.w800,
+            fontSize: 11,
+          ),
+          child: halaman,
+        );
+      },
     );
   }
 }
