@@ -50,6 +50,15 @@ honor tentor, pengeluaran, dan laporan. Dibuat dengan Flutter + Supabase.
    flutter run --dart-define-from-file=env.json
    ```
 
+## Mode contoh (pratinjau desain)
+
+Melihat semua layar dengan data contoh tanpa login dan tanpa Supabase.
+Tidak ada data yang tersimpan.
+
+```bash
+flutter run -d chrome --dart-define=PRATINJAU=true
+```
+
 ## Membuat APK untuk dikirim ke admin
 
 ```bash
