@@ -79,6 +79,7 @@ abstract final class DataContoh {
       noHpWali: '081234567803',
       tagihan: _tagihan(Keringanan.reguler, Skema.cicilan, [
         (7, 16, 1550000, Metode.transfer),
+        (10, 8, 650000, Metode.transfer),
       ]),
     ),
     Siswa(
@@ -92,6 +93,7 @@ abstract final class DataContoh {
       tagihan: _tagihan(Keringanan.yatimPiatu, Skema.cicilan, [
         (7, 18, 800000, Metode.tunai),
         (9, 10, 300000, Metode.tunai),
+        (10, 5, 350000, Metode.tunai),
       ]),
     ),
     Siswa(
@@ -139,6 +141,18 @@ abstract final class DataContoh {
       tagihan: _tagihan(Keringanan.reguler, Skema.cicilan, [
         (7, 20, 1550000, Metode.tunai),
         (10, 12, 400000, Metode.tunai),
+      ]),
+    ),
+    Siswa(
+      id: 's9',
+      nama: 'Indra Kusuma Wardana',
+      program: Program.smp,
+      kelas: '9C',
+      asalSekolah: 'SMPN 2 Sleman',
+      namaWali: 'Bapak Bambang Kusuma',
+      noHpWali: '081234567809',
+      tagihan: _tagihan(Keringanan.reguler, Skema.lunas, [
+        (10, 2, 2850000, Metode.transfer),
       ]),
     ),
   ];
