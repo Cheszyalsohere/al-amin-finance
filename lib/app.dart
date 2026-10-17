@@ -14,6 +14,16 @@ class App extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: buatTema(),
       routerConfig: ref.watch(routerProvider),
+      // Aplikasi dirancang untuk HP; di layar lebar tampil selebar HP di tengah.
+      builder: (context, child) => ColoredBox(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }
