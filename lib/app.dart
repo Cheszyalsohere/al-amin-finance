@@ -31,16 +31,41 @@ class App extends ConsumerWidget {
           ),
         );
         if (!Env.pratinjau) return halaman;
-        return Banner(
-          message: 'CONTOH',
-          location: BannerLocation.topEnd,
-          color: Neo.pink,
-          textStyle: const TextStyle(
-            color: Neo.tinta,
-            fontWeight: FontWeight.w800,
-            fontSize: 11,
-          ),
-          child: halaman,
+        return Column(
+          children: [
+            Material(
+              color: Neo.pink,
+              child: SafeArea(
+                bottom: false,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Neo.tinta, width: Neo.garis),
+                    ),
+                  ),
+                  child: const Text(
+                    'MODE CONTOH · data tidak tersimpan',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Neo.tinta,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: halaman,
+              ),
+            ),
+          ],
         );
       },
     );
