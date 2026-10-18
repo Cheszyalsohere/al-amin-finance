@@ -12,7 +12,7 @@ abstract final class Neo {
   static const pink = Color(0xFFFF8FB1);
   static const hijau = Color(0xFF5CE1A6);
   static const biru = Color(0xFF7CC6FE);
-  static const ungu = Color(0xFFB79CFF);
+  static const ungu = Color(0xFFA78BFA); // warna logo
   static const oranye = Color(0xFFFFA45B);
   static const merah = Color(0xFFFF5C5C);
 

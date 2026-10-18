@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../core/widgets/logo.dart';
 import '../../core/widgets/neo.dart';
 import 'auth_providers.dart';
 import 'auth_repository.dart';
@@ -62,31 +63,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Transform.rotate(
-                      angle: -0.05,
-                      child: const NeoKotak(
-                        warna: Neo.kuning,
-                        padding: EdgeInsets.all(14),
-                        child: Icon(
-                          Icons.account_balance_wallet_outlined,
-                          size: 40,
-                          color: Neo.tinta,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'KEUANGAN\nAL-AMIN',
-                    style: teks.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  const LogoLengkap(ukuran: 96),
+                  const SizedBox(height: 20),
                   Text(
                     'Masuk dengan akun yang diberikan owner.',
                     style: teks.bodyLarge?.copyWith(
