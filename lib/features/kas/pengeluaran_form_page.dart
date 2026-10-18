@@ -23,6 +23,7 @@ class _PengeluaranFormPageState extends ConsumerState<PengeluaranFormPage> {
   final _nominal = TextEditingController();
   String? _kategoriId;
   DateTime _tanggal = hariIniContoh;
+  TimeOfDay _jam = TimeOfDay.now();
 
   @override
   void dispose() {
@@ -38,6 +39,11 @@ class _PengeluaranFormPageState extends ConsumerState<PengeluaranFormPage> {
       lastDate: DateTime(2027, 12, 31),
     );
     if (hasil != null) setState(() => _tanggal = hasil);
+  }
+
+  Future<void> _pilihJam() async {
+    final hasil = await showTimePicker(context: context, initialTime: _jam);
+    if (hasil != null) setState(() => _jam = hasil);
   }
 
   void _simpan() {
@@ -129,6 +135,14 @@ class _PengeluaranFormPageState extends ConsumerState<PengeluaranFormPage> {
               depan: const Icon(Icons.event_outlined),
               judul: tanggalPanjang(_tanggal),
               subjudul: 'Tanggal pengeluaran',
+              belakang: const Icon(Icons.edit_outlined, size: 20),
+            ),
+            const SizedBox(height: 12),
+            NeoItem(
+              onTap: _pilihJam,
+              depan: const Icon(Icons.schedule_outlined),
+              judul: '${jam(DateTime(0, 1, 1, _jam.hour, _jam.minute))} WIB',
+              subjudul: 'Jam pengeluaran',
               belakang: const Icon(Icons.edit_outlined, size: 20),
             ),
             const SizedBox(height: 12),
