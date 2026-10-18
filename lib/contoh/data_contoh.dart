@@ -230,7 +230,7 @@ abstract final class DataContoh {
         periode: DateTime(2026, 9),
         jumlahSesi: 14 - i * 2,
         total: (14 - i * 2) * t.tarifPerSesi,
-        tanggalBayar: DateTime(2026, 9, 30),
+        tanggalBayar: DateTime(2026, 9, 30, 16, 30),
       ),
       PembayaranHonor(
         id: 'h${t.id}-8',
@@ -238,7 +238,7 @@ abstract final class DataContoh {
         periode: DateTime(2026, 8),
         jumlahSesi: 12 - i,
         total: (12 - i) * t.tarifPerSesi,
-        tanggalBayar: DateTime(2026, 8, 31),
+        tanggalBayar: DateTime(2026, 8, 31, 16, 15),
       ),
     ],
   ];
@@ -270,45 +270,47 @@ abstract final class DataContoh {
   static final pengeluaran = <Pengeluaran>[
     Pengeluaran(
       id: 'e1',
-      tanggal: DateTime(2026, 10, 1),
+      tanggal: DateTime(2026, 10, 1, 9, 5),
       kategoriId: 'sewa',
       jumlah: 1500000,
       keterangan: 'Sewa ruko bulan Oktober',
+      dicatatOleh: 'Irfan',
     ),
     Pengeluaran(
       id: 'e2',
-      tanggal: DateTime(2026, 10, 3),
+      tanggal: DateTime(2026, 10, 3, 13, 40),
       kategoriId: 'atk',
       jumlah: 85000,
       keterangan: 'Spidol & penghapus papan',
     ),
     Pengeluaran(
       id: 'e3',
-      tanggal: DateTime(2026, 10, 7),
+      tanggal: DateTime(2026, 10, 7, 11, 20),
       kategoriId: 'fotokopi',
       jumlah: 120000,
       keterangan: 'Fotokopi soal latihan UTS',
     ),
     Pengeluaran(
       id: 'e4',
-      tanggal: DateTime(2026, 10, 10),
+      tanggal: DateTime(2026, 10, 10, 8, 45),
       kategoriId: 'listrik',
       jumlah: 350000,
       keterangan: 'Token listrik',
     ),
     Pengeluaran(
       id: 'e5',
-      tanggal: DateTime(2026, 10, 14),
+      tanggal: DateTime(2026, 10, 14, 16, 10),
       kategoriId: 'lainnya',
       jumlah: 60000,
       keterangan: 'Air galon',
     ),
     Pengeluaran(
       id: 'e6',
-      tanggal: DateTime(2026, 9, 30),
+      tanggal: DateTime(2026, 9, 30, 16, 30),
       kategoriId: KategoriOtomatis.honor,
       jumlah: 2420000,
       keterangan: 'Honor tentor September',
+      dicatatOleh: 'Irfan',
     ),
   ];
 

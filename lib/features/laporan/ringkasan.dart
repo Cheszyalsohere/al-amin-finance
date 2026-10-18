@@ -11,6 +11,9 @@ class Transaksi {
     required this.keterangan,
     required this.jumlah,
     required this.masuk,
+    this.siswaId,
+    this.pembayaranId,
+    this.pengeluaran,
   });
 
   final DateTime tanggal;
@@ -18,6 +21,13 @@ class Transaksi {
   final String keterangan;
   final int jumlah;
   final bool masuk;
+
+  /// Untuk pemasukan: pembayaran siswa yang bisa dibuka kuitansinya.
+  final String? siswaId;
+  final String? pembayaranId;
+
+  /// Untuk pengeluaran: data pengeluarannya.
+  final Pengeluaran? pengeluaran;
 }
 
 class Ringkasan {
@@ -84,6 +94,8 @@ class Ringkasan {
         keterangan: 'Pembayaran · ${p.metode.label}',
         jumlah: p.jumlah,
         masuk: true,
+        siswaId: s.id,
+        pembayaranId: p.id,
       ),
     for (final e in pengeluaranBulanIni)
       Transaksi(
@@ -92,6 +104,7 @@ class Ringkasan {
         keterangan: kategori(e.kategoriId).nama,
         jumlah: e.jumlah,
         masuk: false,
+        pengeluaran: e,
       ),
   ]..sort((a, b) => b.tanggal.compareTo(a.tanggal));
 }

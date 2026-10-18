@@ -66,11 +66,15 @@ class Pengeluaran {
     required this.kategoriId,
     required this.jumlah,
     required this.keterangan,
+    this.dicatatOleh = 'Admin',
   });
 
   final String id;
+
+  /// Tanggal dan jam pengeluaran.
   final DateTime tanggal;
   final String kategoriId;
   final int jumlah;
   final String keterangan;
+  final String dicatatOleh;
 }

@@ -152,7 +152,7 @@ class TentorDetailPage extends StatelessWidget {
               ),
               judul: bulanTahun(h.periode),
               subjudul:
-                  '${h.jumlahSesi} sesi · dibayar ${tanggal(h.tanggalBayar)}',
+                  '${h.jumlahSesi} sesi · dibayar ${tanggalJam(h.tanggalBayar)}',
               belakang: Text(
                 angka(h.total),
                 style: teks.titleSmall?.copyWith(fontWeight: FontWeight.w800),

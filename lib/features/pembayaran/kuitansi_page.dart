@@ -133,6 +133,7 @@ class KuitansiPage extends StatelessWidget {
                     children: [
                       NeoBarisNilai('No.', bayar.noKuitansi),
                       NeoBarisNilai('Tanggal', tanggal(bayar.tanggal)),
+                      NeoBarisNilai('Jam', '${jam(bayar.tanggal)} WIB'),
                       NeoBarisNilai('Siswa', siswa.nama),
                       NeoBarisNilai(
                         'Program',

@@ -11,6 +11,7 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../auth/auth_providers.dart';
 import '../auth/profil.dart';
+import '../kas/detail_pengeluaran.dart';
 import '../laporan/ringkasan.dart';
 
 enum _MenuAkun { gantiPassword, keluar }
@@ -369,6 +370,13 @@ class _BarisTransaksi extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = transaksi;
     return NeoItem(
+      onTap: () {
+        if (t.masuk) {
+          context.push(Rute.kuitansi(t.siswaId!, t.pembayaranId!));
+        } else {
+          bukaDetailPengeluaran(context, t.pengeluaran!);
+        }
+      },
       depan: NeoKotak(
         warna: t.masuk ? Neo.hijau : Neo.pink,
         geser: Offset.zero,
@@ -380,7 +388,7 @@ class _BarisTransaksi extends StatelessWidget {
         ),
       ),
       judul: t.judul,
-      subjudul: '${tanggal(t.tanggal)} · ${t.keterangan}',
+      subjudul: '${tanggalJam(t.tanggal)} · ${t.keterangan}',
       belakang: Text(
         '${t.masuk ? '+' : '−'}${angka(t.jumlah)}',
         style: Theme.of(

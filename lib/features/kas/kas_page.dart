@@ -10,6 +10,7 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_input.dart';
 import '../../core/widgets/neo_keadaan.dart';
+import 'detail_pengeluaran.dart';
 import 'kategori_provider.dart';
 
 class KasPage extends ConsumerStatefulWidget {
@@ -102,7 +103,7 @@ class _KasPageState extends ConsumerState<KasPage> {
             ),
           for (final e in daftar) ...[
             NeoItem(
-              onTap: () => aksiContoh(context, 'Lihat detail pengeluaran'),
+              onTap: () => bukaDetailPengeluaran(context, e),
               depan: NeoKotak(
                 warna: Neo.oranye,
                 geser: Offset.zero,
@@ -111,7 +112,7 @@ class _KasPageState extends ConsumerState<KasPage> {
               ),
               judul: e.keterangan,
               subjudul:
-                  '${tanggal(e.tanggal)} · ${r.kategori(e.kategoriId).nama}',
+                  '${tanggalJam(e.tanggal)} · ${r.kategori(e.kategoriId).nama}',
               belakang: Text(
                 angka(e.jumlah),
                 style: teks.titleSmall?.copyWith(fontWeight: FontWeight.w800),

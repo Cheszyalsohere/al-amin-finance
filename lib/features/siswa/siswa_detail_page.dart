@@ -194,7 +194,7 @@ class SiswaDetailPage extends StatelessWidget {
                 child: Icon(Icons.receipt_outlined, color: Neo.tinta),
               ),
               judul: rupiah(p.jumlah),
-              subjudul: '${tanggal(p.tanggal)} · ${p.metode.label}',
+              subjudul: '${tanggalJam(p.tanggal)} · ${p.metode.label}',
               belakang: const Icon(Icons.chevron_right, color: Neo.tinta),
             ),
             const SizedBox(height: 10),

@@ -23,5 +23,8 @@ String tanggalPanjang(DateTime t) =>
 /// `2026-10-18 14:05` → `14.05`
 String jam(DateTime t) => DateFormat('HH.mm', 'id_ID').format(t);
 
+/// `2026-10-18 14:05` → `18 Okt 2026 · 14.05`
+String tanggalJam(DateTime t) => '${tanggal(t)} · ${jam(t)}';
+
 /// `2026-10-18` → `Oktober 2026`
 String bulanTahun(DateTime t) => DateFormat('MMMM yyyy', 'id_ID').format(t);
