@@ -243,46 +243,70 @@ abstract final class DataContoh {
     ],
   ];
 
+  static const kategori = <KategoriPengeluaran>[
+    KategoriPengeluaran(
+      id: KategoriOtomatis.honor,
+      nama: 'Honor tentor',
+      kodeIkon: 'honor',
+      otomatis: true,
+    ),
+    KategoriPengeluaran(
+      id: KategoriOtomatis.gajiAdmin,
+      nama: 'Gaji admin',
+      kodeIkon: 'gaji',
+      otomatis: true,
+    ),
+    KategoriPengeluaran(id: 'sewa', nama: 'Sewa tempat', kodeIkon: 'sewa'),
+    KategoriPengeluaran(
+      id: 'listrik',
+      nama: 'Listrik & air',
+      kodeIkon: 'listrik',
+    ),
+    KategoriPengeluaran(id: 'atk', nama: 'ATK', kodeIkon: 'atk'),
+    KategoriPengeluaran(id: 'fotokopi', nama: 'Fotokopi', kodeIkon: 'fotokopi'),
+    KategoriPengeluaran(id: 'lainnya', nama: 'Lainnya', kodeIkon: 'lainnya'),
+  ];
+
   static final pengeluaran = <Pengeluaran>[
     Pengeluaran(
       id: 'e1',
       tanggal: DateTime(2026, 10, 1),
-      kategori: KategoriPengeluaran.sewa,
+      kategoriId: 'sewa',
       jumlah: 1500000,
       keterangan: 'Sewa ruko bulan Oktober',
     ),
     Pengeluaran(
       id: 'e2',
       tanggal: DateTime(2026, 10, 3),
-      kategori: KategoriPengeluaran.atk,
+      kategoriId: 'atk',
       jumlah: 85000,
       keterangan: 'Spidol & penghapus papan',
     ),
     Pengeluaran(
       id: 'e3',
       tanggal: DateTime(2026, 10, 7),
-      kategori: KategoriPengeluaran.fotokopi,
+      kategoriId: 'fotokopi',
       jumlah: 120000,
       keterangan: 'Fotokopi soal latihan UTS',
     ),
     Pengeluaran(
       id: 'e4',
       tanggal: DateTime(2026, 10, 10),
-      kategori: KategoriPengeluaran.listrik,
+      kategoriId: 'listrik',
       jumlah: 350000,
       keterangan: 'Token listrik',
     ),
     Pengeluaran(
       id: 'e5',
       tanggal: DateTime(2026, 10, 14),
-      kategori: KategoriPengeluaran.lainnya,
+      kategoriId: 'lainnya',
       jumlah: 60000,
       keterangan: 'Air galon',
     ),
     Pengeluaran(
       id: 'e6',
       tanggal: DateTime(2026, 9, 30),
-      kategori: KategoriPengeluaran.honor,
+      kategoriId: KategoriOtomatis.honor,
       jumlah: 2420000,
       keterangan: 'Honor tentor September',
     ),

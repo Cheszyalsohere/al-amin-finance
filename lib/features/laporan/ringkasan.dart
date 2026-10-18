@@ -24,13 +24,16 @@ class Ringkasan {
   Ringkasan({
     required List<Siswa> siswa,
     required List<Pengeluaran> pengeluaran,
+    required List<KategoriPengeluaran> kategori,
     required this.bulan,
     required this.hariIni,
   }) : _siswa = siswa,
-       _pengeluaran = pengeluaran;
+       _pengeluaran = pengeluaran,
+       _kategori = {for (final k in kategori) k.id: k};
 
   final List<Siswa> _siswa;
   final List<Pengeluaran> _pengeluaran;
+  final Map<String, KategoriPengeluaran> _kategori;
   final DateTime bulan;
   final DateTime hariIni;
 
@@ -49,10 +52,18 @@ class Ringkasan {
 
   int get saldo => pemasukan - pengeluaran;
 
+  KategoriPengeluaran kategori(String id) =>
+      _kategori[id] ??
+      KategoriPengeluaran(id: id, nama: 'Tanpa kategori', kodeIkon: 'lainnya');
+
   Map<KategoriPengeluaran, int> get perKategori {
     final hasil = <KategoriPengeluaran, int>{};
     for (final e in pengeluaranBulanIni) {
-      hasil.update(e.kategori, (v) => v + e.jumlah, ifAbsent: () => e.jumlah);
+      hasil.update(
+        kategori(e.kategoriId),
+        (v) => v + e.jumlah,
+        ifAbsent: () => e.jumlah,
+      );
     }
     return Map.fromEntries(
       hasil.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
@@ -78,7 +89,7 @@ class Ringkasan {
       Transaksi(
         tanggal: e.tanggal,
         judul: e.keterangan,
-        keterangan: e.kategori.label,
+        keterangan: kategori(e.kategoriId).nama,
         jumlah: e.jumlah,
         masuk: false,
       ),
