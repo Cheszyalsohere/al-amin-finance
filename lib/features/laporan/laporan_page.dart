@@ -39,6 +39,11 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
         title: const Text('Laporan'),
         actions: [
           IconButton(
+            tooltip: 'Riwayat transaksi',
+            icon: const Icon(Icons.history),
+            onPressed: () => context.push(Rute.riwayat),
+          ),
+          IconButton(
             tooltip: 'Export Excel',
             icon: const Icon(Icons.file_download_outlined),
             onPressed: () => aksiContoh(context, 'Export laporan ke Excel'),
@@ -112,6 +117,19 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
             BarisTransaksi(transaksi: t),
             const SizedBox(height: 10),
           ],
+          const SizedBox(height: 4),
+          NeoTombol(
+            warna: Neo.biru,
+            onPressed: () => context.push(Rute.riwayat),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.history),
+                const SizedBox(width: 8),
+                Text('Riwayat lengkap (${r.transaksi.length} transaksi)'),
+              ],
+            ),
+          ),
           const SizedBox(height: 28),
           const NeoBagian(judul: 'Pengeluaran per kategori'),
           if (perKategori.isEmpty)
