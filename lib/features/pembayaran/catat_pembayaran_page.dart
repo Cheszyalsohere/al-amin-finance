@@ -51,6 +51,7 @@ class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
   Future<void> _pilihSiswa() async {
     final terpilih = await showModalBottomSheet<Siswa>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Neo.putih,
       shape: const RoundedRectangleBorder(

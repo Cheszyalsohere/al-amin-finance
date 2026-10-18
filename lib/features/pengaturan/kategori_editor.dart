@@ -14,6 +14,7 @@ Future<void> bukaEditorKategori(
 }) {
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Neo.putih,
     shape: const RoundedRectangleBorder(

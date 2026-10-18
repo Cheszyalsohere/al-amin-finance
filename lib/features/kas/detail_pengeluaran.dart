@@ -13,6 +13,7 @@ import 'pengeluaran.dart';
 Future<void> bukaDetailPengeluaran(BuildContext context, Pengeluaran e) {
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Neo.putih,
     shape: const RoundedRectangleBorder(
