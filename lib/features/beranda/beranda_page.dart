@@ -13,6 +13,8 @@ import '../auth/auth_providers.dart';
 import '../auth/profil.dart';
 import '../laporan/ringkasan.dart';
 
+enum _MenuAkun { gantiPassword, keluar }
+
 class BerandaPage extends ConsumerWidget {
   const BerandaPage({super.key});
 
@@ -30,10 +32,31 @@ class BerandaPage extends ConsumerWidget {
               icon: const Icon(Icons.settings_outlined),
               onPressed: () => context.push(Rute.pengaturan),
             ),
-          IconButton(
-            tooltip: 'Keluar',
-            icon: const Icon(Icons.logout),
-            onPressed: () => _konfirmasiKeluar(context, ref),
+          PopupMenuButton<_MenuAkun>(
+            tooltip: 'Akun',
+            icon: const Icon(Icons.account_circle_outlined),
+            onSelected: (pilihan) => switch (pilihan) {
+              _MenuAkun.gantiPassword => context.push(Rute.gantiPassword),
+              _MenuAkun.keluar => _konfirmasiKeluar(context, ref),
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: _MenuAkun.gantiPassword,
+                child: ListTile(
+                  leading: Icon(Icons.key_outlined),
+                  title: Text('Ganti password'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem(
+                value: _MenuAkun.keluar,
+                child: ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('Keluar'),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
           ),
         ],
       ),

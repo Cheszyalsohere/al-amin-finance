@@ -98,6 +98,15 @@ ThemeData buatTema() {
       ),
       titleTextStyle: teks.titleLarge?.copyWith(fontWeight: FontWeight.w700),
     ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: Neo.putih,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Neo.sudut),
+        side: const BorderSide(color: Neo.tinta, width: Neo.garis),
+      ),
+      textStyle: teks.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+    ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: Neo.tinta,
       contentTextStyle: teks.bodyMedium?.copyWith(

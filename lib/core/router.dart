@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/auth/auth_providers.dart';
+import '../features/auth/ganti_password_page.dart';
 import '../features/auth/login_page.dart';
 import '../features/beranda/beranda_page.dart';
 import '../features/kas/pengeluaran_form_page.dart';
@@ -44,6 +45,7 @@ abstract final class Rute {
   static const tambahPengeluaran = '/kas/tambah';
   static const laporan = '/laporan';
   static const pengaturan = '/pengaturan';
+  static const gantiPassword = '/akun/password';
 }
 
 final _akar = GlobalKey<NavigatorState>(debugLabel: 'akar');
@@ -155,6 +157,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         (s) => BayarHonorPage(tentorId: s.pathParameters['tentor']!),
       ),
       layarPenuh(Rute.pengaturan, (_) => const PengaturanPage()),
+      layarPenuh(Rute.gantiPassword, (_) => const GantiPasswordPage()),
     ],
   );
 });
