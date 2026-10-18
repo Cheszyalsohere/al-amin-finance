@@ -131,6 +131,15 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
             const SizedBox(height: 14),
           ],
           const SizedBox(height: 14),
+          NeoItem(
+            onTap: () => context.push(Rute.riwayat),
+            warna: Neo.biru,
+            depan: const Icon(Icons.history, size: 28),
+            judul: 'Riwayat transaksi',
+            subjudul: '${r.transaksi.length} pemasukan & pengeluaran bulan ini',
+            belakang: const Icon(Icons.chevron_right),
+          ),
+          const SizedBox(height: 28),
           NeoBagian(
             judul: 'Tunggakan siswa',
             aksi: 'Lihat',

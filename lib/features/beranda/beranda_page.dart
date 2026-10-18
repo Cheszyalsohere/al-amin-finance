@@ -11,7 +11,7 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../auth/auth_providers.dart';
 import '../auth/profil.dart';
-import '../kas/detail_pengeluaran.dart';
+import '../laporan/riwayat_page.dart';
 import '../laporan/ringkasan.dart';
 
 enum _MenuAkun { gantiPassword, keluar }
@@ -189,11 +189,11 @@ class _IsiBeranda extends ConsumerWidget {
         const SizedBox(height: 24),
         NeoBagian(
           judul: 'Transaksi terbaru',
-          aksi: 'Laporan',
-          onAksi: () => context.go(Rute.laporan),
+          aksi: 'Lihat semua',
+          onAksi: () => context.push(Rute.riwayat),
         ),
         for (final t in r.transaksi.take(5)) ...[
-          _BarisTransaksi(transaksi: t),
+          BarisTransaksi(transaksi: t),
           const SizedBox(height: 10),
         ],
       ],
@@ -356,44 +356,6 @@ class _AksiCepat extends StatelessWidget {
           const SizedBox(height: 6),
           Text(label),
         ],
-      ),
-    );
-  }
-}
-
-class _BarisTransaksi extends StatelessWidget {
-  const _BarisTransaksi({required this.transaksi});
-
-  final Transaksi transaksi;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = transaksi;
-    return NeoItem(
-      onTap: () {
-        if (t.masuk) {
-          context.push(Rute.kuitansi(t.siswaId!, t.pembayaranId!));
-        } else {
-          bukaDetailPengeluaran(context, t.pengeluaran!);
-        }
-      },
-      depan: NeoKotak(
-        warna: t.masuk ? Neo.hijau : Neo.pink,
-        geser: Offset.zero,
-        padding: const EdgeInsets.all(8),
-        child: Icon(
-          t.masuk ? Icons.south_west : Icons.north_east,
-          size: 20,
-          color: Neo.tinta,
-        ),
-      ),
-      judul: t.judul,
-      subjudul: '${tanggalJam(t.tanggal)} · ${t.keterangan}',
-      belakang: Text(
-        '${t.masuk ? '+' : '−'}${angka(t.jumlah)}',
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
       ),
     );
   }

@@ -11,6 +11,7 @@ import '../features/beranda/beranda_page.dart';
 import '../features/kas/pengeluaran_form_page.dart';
 import '../features/kas/kas_page.dart';
 import '../features/laporan/laporan_page.dart';
+import '../features/laporan/riwayat_page.dart';
 import '../features/pembayaran/catat_pembayaran_page.dart';
 import '../features/pembayaran/kuitansi_page.dart';
 import '../features/pengaturan/pengaturan_page.dart';
@@ -44,6 +45,7 @@ abstract final class Rute {
   static const kas = '/kas';
   static const tambahPengeluaran = '/kas/tambah';
   static const laporan = '/laporan';
+  static const riwayat = '/riwayat';
   static const pengaturan = '/pengaturan';
   static const gantiPassword = '/akun/password';
 }
@@ -156,6 +158,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/honor/:tentor',
         (s) => BayarHonorPage(tentorId: s.pathParameters['tentor']!),
       ),
+      layarPenuh(Rute.riwayat, (_) => const RiwayatPage()),
       layarPenuh(Rute.pengaturan, (_) => const PengaturanPage()),
       layarPenuh(Rute.gantiPassword, (_) => const GantiPasswordPage()),
     ],
