@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contoh/aksi_contoh.dart';
 import '../../contoh/data_contoh.dart';
@@ -6,15 +7,17 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
-import '../kas/pengeluaran.dart';
+import '../kas/kategori_provider.dart';
 import '../siswa/siswa.dart';
+import 'kategori_editor.dart';
 
-class PengaturanPage extends StatelessWidget {
+class PengaturanPage extends ConsumerWidget {
   const PengaturanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final a = DataContoh.aturan;
+    final kategori = ref.watch(kategoriProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pengaturan')),
@@ -65,16 +68,28 @@ class PengaturanPage extends StatelessWidget {
           NeoBagian(
             judul: 'Kategori pengeluaran',
             aksi: 'Tambah',
-            onAksi: () => aksiContoh(context, 'Tambah kategori'),
+            onAksi: () => bukaEditorKategori(context),
           ),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final k in KategoriPengeluaran.values)
-                NeoLabel(teks: k.label, ikon: k.ikon, warna: Neo.oranye),
-            ],
-          ),
+          for (final k in kategori) ...[
+            NeoItem(
+              onTap: () => bukaEditorKategori(context, kategori: k),
+              warna: k.diarsipkan ? const Color(0xFFEDEDED) : Neo.putih,
+              depan: NeoKotak(
+                warna: k.diarsipkan ? Neo.putih : Neo.oranye,
+                geser: Offset.zero,
+                padding: const EdgeInsets.all(8),
+                child: Icon(k.ikon, color: Neo.tinta),
+              ),
+              judul: k.nama,
+              subjudul: k.otomatis
+                  ? 'Otomatis dari pembayaran'
+                  : k.diarsipkan
+                  ? 'Diarsipkan'
+                  : null,
+              belakang: const Icon(Icons.edit_outlined, size: 20),
+            ),
+            const SizedBox(height: 10),
+          ],
           const SizedBox(height: 28),
           NeoBagian(
             judul: 'Akun',
