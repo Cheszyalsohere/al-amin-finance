@@ -23,6 +23,12 @@ class RepoPratinjau implements AuthRepository {
   Future<void> keluar() async {}
 
   @override
+  Future<void> gantiPassword({
+    required String passwordLama,
+    required String passwordBaru,
+  }) async {}
+
+  @override
   Future<Profil?> profilSaatIni() async => const Profil(
     id: 'pratinjau',
     nama: 'Irfan',
