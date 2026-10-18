@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
@@ -7,19 +8,20 @@ import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_input.dart';
-import 'pengeluaran.dart';
+import 'kategori_provider.dart';
 
-class PengeluaranFormPage extends StatefulWidget {
+class PengeluaranFormPage extends ConsumerStatefulWidget {
   const PengeluaranFormPage({super.key});
 
   @override
-  State<PengeluaranFormPage> createState() => _PengeluaranFormPageState();
+  ConsumerState<PengeluaranFormPage> createState() =>
+      _PengeluaranFormPageState();
 }
 
-class _PengeluaranFormPageState extends State<PengeluaranFormPage> {
+class _PengeluaranFormPageState extends ConsumerState<PengeluaranFormPage> {
   final _formKey = GlobalKey<FormState>();
   final _nominal = TextEditingController();
-  KategoriPengeluaran _kategori = KategoriPengeluaran.atk;
+  String? _kategoriId;
   DateTime _tanggal = hariIniContoh;
 
   @override
@@ -47,9 +49,10 @@ class _PengeluaranFormPageState extends State<PengeluaranFormPage> {
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    // Honor dicatat otomatis dari halaman Bayar honor.
-    final kategori = KategoriPengeluaran.values
-        .where((k) => k != KategoriPengeluaran.honor)
+    // Honor dan gaji admin dicatat otomatis dari halaman pembayarannya.
+    final kategori = ref
+        .watch(kategoriProvider)
+        .where((k) => !k.otomatis && !k.diarsipkan)
         .toList();
 
     return Scaffold(
@@ -80,12 +83,35 @@ class _PengeluaranFormPageState extends State<PengeluaranFormPage> {
               style: teks.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            NeoPilihan<KategoriPengeluaran>(
-              pilihan: kategori,
-              terpilih: _kategori,
-              label: (k) => k.label,
-              warna: Neo.oranye,
-              onPilih: (k) => setState(() => _kategori = k),
+            FormField<String>(
+              validator: (_) =>
+                  _kategoriId == null ? 'Pilih salah satu kategori' : null,
+              builder: (field) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  NeoPilihan<String>(
+                    pilihan: [for (final k in kategori) k.id],
+                    terpilih: _kategoriId,
+                    label: (id) => kategori.firstWhere((k) => k.id == id).nama,
+                    warna: Neo.oranye,
+                    onPilih: (id) {
+                      setState(() => _kategoriId = id);
+                      field.didChange(id);
+                    },
+                  ),
+                  if (field.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        field.errorText!,
+                        style: teks.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             TextFormField(

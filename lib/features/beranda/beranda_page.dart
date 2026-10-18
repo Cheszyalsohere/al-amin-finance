@@ -106,15 +106,15 @@ class BerandaPage extends ConsumerWidget {
   }
 }
 
-class _IsiBeranda extends StatelessWidget {
+class _IsiBeranda extends ConsumerWidget {
   const _IsiBeranda({required this.profil});
 
   final Profil profil;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh();
+    final r = ringkasanContoh(ref);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),

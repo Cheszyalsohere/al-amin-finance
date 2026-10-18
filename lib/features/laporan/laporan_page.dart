@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
@@ -9,14 +10,14 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_status.dart';
 
-class LaporanPage extends StatefulWidget {
+class LaporanPage extends ConsumerStatefulWidget {
   const LaporanPage({super.key});
 
   @override
-  State<LaporanPage> createState() => _LaporanPageState();
+  ConsumerState<LaporanPage> createState() => _LaporanPageState();
 }
 
-class _LaporanPageState extends State<LaporanPage> {
+class _LaporanPageState extends ConsumerState<LaporanPage> {
   DateTime _bulan = DateTime(hariIniContoh.year, hariIniContoh.month);
 
   void _geser(int delta) =>
@@ -25,7 +26,7 @@ class _LaporanPageState extends State<LaporanPage> {
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh(_bulan);
+    final r = ringkasanContoh(ref, _bulan);
     final perKategori = r.perKategori;
     final terbesar = perKategori.values.fold(0, (a, b) => a > b ? a : b);
     final bisaMaju = _bulan.isBefore(
@@ -109,7 +110,7 @@ class _LaporanPageState extends State<LaporanPage> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    k.label,
+                    k.nama,
                     style: teks.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

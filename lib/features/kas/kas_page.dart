@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
@@ -9,25 +10,29 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_input.dart';
 import '../../core/widgets/neo_keadaan.dart';
-import 'pengeluaran.dart';
+import 'kategori_provider.dart';
 
-class KasPage extends StatefulWidget {
+class KasPage extends ConsumerStatefulWidget {
   const KasPage({super.key});
 
   @override
-  State<KasPage> createState() => _KasPageState();
+  ConsumerState<KasPage> createState() => _KasPageState();
 }
 
-class _KasPageState extends State<KasPage> {
-  KategoriPengeluaran? _kategori;
+class _KasPageState extends ConsumerState<KasPage> {
+  String? _kategoriId;
 
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh();
+    final r = ringkasanContoh(ref);
+    final semuaKategori = ref.watch(kategoriProvider);
+    final kategoriTerpilih = _kategoriId == null
+        ? null
+        : r.kategori(_kategoriId!);
     final daftar =
         r.pengeluaranBulanIni
-            .where((e) => _kategori == null || e.kategori == _kategori)
+            .where((e) => _kategoriId == null || e.kategoriId == _kategoriId)
             .toList()
           ..sort((a, b) => b.tanggal.compareTo(a.tanggal));
     final total = daftar.fold(0, (a, e) => a + e.jumlah);
@@ -65,9 +70,9 @@ class _KasPageState extends State<KasPage> {
                   ),
                 ),
                 Text(
-                  _kategori == null
+                  kategoriTerpilih == null
                       ? '${daftar.length} transaksi'
-                      : '${daftar.length} transaksi · ${_kategori!.label}',
+                      : '${daftar.length} transaksi · ${kategoriTerpilih.nama}',
                   style: teks.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
@@ -77,12 +82,16 @@ class _KasPageState extends State<KasPage> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
-            child: NeoPilihan<KategoriPengeluaran?>(
-              pilihan: const [null, ...KategoriPengeluaran.values],
-              terpilih: _kategori,
-              label: (k) => k?.label ?? 'Semua',
+            child: NeoPilihan<String?>(
+              pilihan: [
+                null,
+                for (final k in semuaKategori)
+                  if (!k.diarsipkan) k.id,
+              ],
+              terpilih: _kategoriId,
+              label: (id) => id == null ? 'Semua' : r.kategori(id).nama,
               warna: Neo.oranye,
-              onPilih: (k) => setState(() => _kategori = k),
+              onPilih: (id) => setState(() => _kategoriId = id),
             ),
           ),
           const SizedBox(height: 20),
@@ -98,10 +107,11 @@ class _KasPageState extends State<KasPage> {
                 warna: Neo.oranye,
                 geser: Offset.zero,
                 padding: const EdgeInsets.all(8),
-                child: Icon(e.kategori.ikon, color: Neo.tinta),
+                child: Icon(r.kategori(e.kategoriId).ikon, color: Neo.tinta),
               ),
               judul: e.keterangan,
-              subjudul: '${tanggal(e.tanggal)} · ${e.kategori.label}',
+              subjudul:
+                  '${tanggal(e.tanggal)} · ${r.kategori(e.kategoriId).nama}',
               belakang: Text(
                 angka(e.jumlah),
                 style: teks.titleSmall?.copyWith(fontWeight: FontWeight.w800),

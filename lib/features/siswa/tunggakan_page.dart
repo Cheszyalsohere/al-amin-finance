@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
@@ -10,12 +11,12 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../../core/widgets/neo_status.dart';
 
-class TunggakanPage extends StatelessWidget {
+class TunggakanPage extends ConsumerWidget {
   const TunggakanPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final r = ringkasanContoh();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final r = ringkasanContoh(ref);
     final daftar = r.menunggak;
     final teks = Theme.of(context).textTheme;
     final sisaHari = DateTime(2026, 12, 31).difference(hariIniContoh).inDays;
