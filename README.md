@@ -6,7 +6,7 @@ honor tentor, pengeluaran, dan laporan. Dibuat dengan Flutter + Supabase.
 ## Status
 
 - [x] Tahap 1: login owner/admin
-- [ ] Tahap 2: desain tampilan semua layar (data contoh)
+- [x] Tahap 2: desain tampilan semua layar (data contoh)
 - [ ] Tahap 3: siswa, tagihan, pembayaran, tunggakan
 - [ ] Tahap 4: kuitansi PDF
 - [ ] Tahap 5: tentor, absensi foto, sesi, honor
