@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_status.dart';
+import 'riwayat_page.dart';
 
 class LaporanPage extends ConsumerStatefulWidget {
   const LaporanPage({super.key});
@@ -100,6 +101,18 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
             warna: r.saldo >= 0 ? Neo.kuning : Neo.merah,
           ),
           const SizedBox(height: 28),
+          NeoBagian(
+            judul: 'Transaksi terbaru',
+            aksi: 'Lihat semua',
+            onAksi: () => context.push(Rute.riwayat),
+          ),
+          if (r.transaksi.isEmpty)
+            const NeoKotak(child: Text('Belum ada transaksi bulan ini.')),
+          for (final t in r.transaksi.take(5)) ...[
+            BarisTransaksi(transaksi: t),
+            const SizedBox(height: 10),
+          ],
+          const SizedBox(height: 28),
           const NeoBagian(judul: 'Pengeluaran per kategori'),
           if (perKategori.isEmpty)
             const NeoKotak(child: Text('Tidak ada pengeluaran bulan ini.')),
@@ -131,15 +144,6 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
             const SizedBox(height: 14),
           ],
           const SizedBox(height: 14),
-          NeoItem(
-            onTap: () => context.push(Rute.riwayat),
-            warna: Neo.biru,
-            depan: const Icon(Icons.history, size: 28),
-            judul: 'Riwayat transaksi',
-            subjudul: '${r.transaksi.length} pemasukan & pengeluaran bulan ini',
-            belakang: const Icon(Icons.chevron_right),
-          ),
-          const SizedBox(height: 28),
           NeoBagian(
             judul: 'Tunggakan siswa',
             aksi: 'Lihat',

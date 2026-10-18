@@ -11,7 +11,6 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../auth/auth_providers.dart';
 import '../auth/profil.dart';
-import '../laporan/riwayat_page.dart';
 import '../laporan/ringkasan.dart';
 
 enum _MenuAkun { gantiPassword, keluar }
@@ -186,16 +185,6 @@ class _IsiBeranda extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 24),
-        NeoBagian(
-          judul: 'Transaksi terbaru',
-          aksi: 'Lihat semua',
-          onAksi: () => context.push(Rute.riwayat),
-        ),
-        for (final t in r.transaksi.take(5)) ...[
-          BarisTransaksi(transaksi: t),
-          const SizedBox(height: 10),
-        ],
       ],
     );
   }
