@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../contoh/aksi_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -12,6 +11,7 @@ import '../../core/widgets/neo_input.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import 'detail_pengeluaran.dart';
 import 'kategori_provider.dart';
+import '../siswa/siswa_providers.dart';
 
 class KasPage extends ConsumerStatefulWidget {
   const KasPage({super.key});
@@ -26,7 +26,18 @@ class _KasPageState extends ConsumerState<KasPage> {
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh(ref);
+    final hasil = ref.watch(ringkasanBulanIniProvider);
+    final r = hasil.value;
+    if (r == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Pengeluaran')),
+        body: NeoAsync(
+          nilai: hasil,
+          onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+          isi: (_) => const SizedBox(),
+        ),
+      );
+    }
     final semuaKategori = ref.watch(kategoriProvider);
     final kategoriTerpilih = _kategoriId == null
         ? null
@@ -51,6 +62,9 @@ class _KasPageState extends ConsumerState<KasPage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
         children: [
+          const NeoBelumTersambung(
+            pesan: 'Pencatatan pengeluaran tersambung ke database di Tahap 6.',
+          ),
           NeoKotak(
             warna: Neo.oranye,
             child: Column(

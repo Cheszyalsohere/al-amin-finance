@@ -10,6 +10,8 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_status.dart';
 import 'riwayat_page.dart';
+import '../siswa/siswa_providers.dart';
+import '../../core/widgets/neo_keadaan.dart';
 
 class LaporanPage extends ConsumerStatefulWidget {
   const LaporanPage({super.key});
@@ -19,7 +21,12 @@ class LaporanPage extends ConsumerStatefulWidget {
 }
 
 class _LaporanPageState extends ConsumerState<LaporanPage> {
-  DateTime _bulan = DateTime(hariIniContoh.year, hariIniContoh.month);
+  late DateTime _bulan = _bulanIni;
+
+  DateTime get _bulanIni {
+    final h = ref.read(hariIniProvider);
+    return DateTime(h.year, h.month);
+  }
 
   void _geser(int delta) =>
       setState(() => _bulan = DateTime(_bulan.year, _bulan.month + delta));
@@ -27,12 +34,21 @@ class _LaporanPageState extends ConsumerState<LaporanPage> {
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh(ref, _bulan);
+    final hasil = ref.watch(ringkasanProvider(_bulan));
+    final r = hasil.value;
+    if (r == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Laporan')),
+        body: NeoAsync(
+          nilai: hasil,
+          onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+          isi: (_) => const SizedBox(),
+        ),
+      );
+    }
     final perKategori = r.perKategori;
     final terbesar = perKategori.values.fold(0, (a, b) => a > b ? a : b);
-    final bisaMaju = _bulan.isBefore(
-      DateTime(hariIniContoh.year, hariIniContoh.month),
-    );
+    final bisaMaju = _bulan.isBefore(_bulanIni);
 
     return Scaffold(
       appBar: AppBar(

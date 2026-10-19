@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import 'tentor.dart';
+import '../../core/widgets/neo_keadaan.dart';
 
 /// Kehadiran seorang tentor pada bulan tertentu (data contoh).
 List<Kehadiran> kehadiranBulan(String tentorId, DateTime bulan) => [
@@ -59,6 +60,10 @@ class TentorPage extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
         children: [
+          const NeoBelumTersambung(
+            pesan:
+                'Data tentor di bawah masih contoh. Tersambung ke database di Tahap 5.',
+          ),
           NeoKotak(
             warna: Neo.hijau,
             child: Column(

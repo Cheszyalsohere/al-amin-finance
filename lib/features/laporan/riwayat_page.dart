@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../contoh/aksi_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -12,6 +11,7 @@ import '../../core/widgets/neo_input.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../kas/detail_pengeluaran.dart';
 import 'ringkasan.dart';
+import '../siswa/siswa_providers.dart';
 
 enum JenisTransaksi {
   semua('Semua'),
@@ -45,7 +45,13 @@ class RiwayatPage extends ConsumerStatefulWidget {
 }
 
 class _RiwayatPageState extends ConsumerState<RiwayatPage> {
-  DateTime _bulan = DateTime(hariIniContoh.year, hariIniContoh.month);
+  late DateTime _bulan = _bulanIni;
+
+  DateTime get _bulanIni {
+    final h = ref.read(hariIniProvider);
+    return DateTime(h.year, h.month);
+  }
+
   JenisTransaksi _jenis = JenisTransaksi.semua;
 
   void _geser(int delta) =>
@@ -54,7 +60,18 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
   @override
   Widget build(BuildContext context) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh(ref, _bulan);
+    final hasil = ref.watch(ringkasanProvider(_bulan));
+    final r = hasil.value;
+    if (r == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Riwayat transaksi')),
+        body: NeoAsync(
+          nilai: hasil,
+          onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+          isi: (_) => const SizedBox(),
+        ),
+      );
+    }
     final daftar = r.transaksi.where(
       (t) => switch (_jenis) {
         JenisTransaksi.semua => true,
@@ -63,9 +80,7 @@ class _RiwayatPageState extends ConsumerState<RiwayatPage> {
       },
     );
     final kelompok = kelompokkanPerHari(daftar.toList());
-    final bisaMaju = _bulan.isBefore(
-      DateTime(hariIniContoh.year, hariIniContoh.month),
-    );
+    final bisaMaju = _bulan.isBefore(_bulanIni);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Riwayat transaksi')),

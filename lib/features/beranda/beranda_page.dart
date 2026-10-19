@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../contoh/aksi_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -12,6 +11,7 @@ import '../../core/widgets/neo_keadaan.dart';
 import '../auth/auth_providers.dart';
 import '../auth/profil.dart';
 import '../laporan/ringkasan.dart';
+import '../siswa/siswa_providers.dart';
 
 enum _MenuAkun { gantiPassword, keluar }
 
@@ -114,7 +114,15 @@ class _IsiBeranda extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teks = Theme.of(context).textTheme;
-    final r = ringkasanContoh(ref);
+    final hasil = ref.watch(ringkasanBulanIniProvider);
+    final r = hasil.value;
+    if (r == null) {
+      return NeoAsync(
+        nilai: hasil,
+        onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+        isi: (_) => const SizedBox(),
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),

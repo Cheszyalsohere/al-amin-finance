@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../kas/kategori_provider.dart';
 import '../siswa/siswa.dart';
+import '../siswa/siswa_providers.dart';
 import 'kategori_editor.dart';
 
 class PengaturanPage extends ConsumerWidget {
@@ -16,7 +16,7 @@ class PengaturanPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final a = DataContoh.aturan;
+    final aturan = ref.watch(aturanProvider).value;
     final kategori = ref.watch(kategoriProvider);
 
     return Scaffold(
@@ -29,8 +29,10 @@ class PengaturanPage extends ConsumerWidget {
             warna: Neo.kuning,
             onTap: () => aksiContoh(context, 'Ganti tahun ajaran'),
             depan: const Icon(Icons.school_outlined, size: 28),
-            judul: DataContoh.tahunAjaran,
-            subjudul: 'Aktif · batas cicilan ${tanggal(a.batasCicilan)}',
+            judul: aturan?.tahunAjaran ?? 'Memuat…',
+            subjudul: aturan == null
+                ? null
+                : 'Aktif · batas cicilan ${tanggal(aturan.batasCicilan)}',
             belakang: const Icon(Icons.chevron_right),
           ),
           const SizedBox(height: 24),
@@ -42,10 +44,14 @@ class PengaturanPage extends ConsumerWidget {
           NeoKotak(
             child: Column(
               children: [
-                for (final p in Program.values)
-                  NeoBarisNilai('Program ${p.label}', rupiah(a.biayaProgram)),
-                NeoBarisNilai('Uang muka cicilan', rupiah(a.uangMuka)),
-                NeoBarisNilai('Biaya admin pendaftaran', rupiah(a.biayaAdmin)),
+                if (aturan == null) const Text('Memuat…'),
+                for (final MapEntry(key: p, value: b)
+                    in aturan?.biaya.entries ??
+                        <MapEntry<Program, AturanBiaya>>[]) ...[
+                  NeoBarisNilai('Program ${p.label}', rupiah(b.biayaProgram)),
+                  NeoBarisNilai('  Uang muka cicilan', rupiah(b.uangMuka)),
+                  NeoBarisNilai('  Biaya admin', rupiah(b.biayaAdmin)),
+                ],
               ],
             ),
           ),
