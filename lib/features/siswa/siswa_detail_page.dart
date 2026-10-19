@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -11,25 +11,34 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../../core/widgets/neo_status.dart';
 import 'siswa.dart';
+import 'siswa_providers.dart';
 
-class SiswaDetailPage extends StatelessWidget {
+class SiswaDetailPage extends ConsumerWidget {
   const SiswaDetailPage({super.key, required this.siswaId});
 
   final String siswaId;
 
   @override
-  Widget build(BuildContext context) {
-    final siswa = DataContoh.siswa.where((s) => s.id == siswaId).firstOrNull;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasil = ref.watch(siswaProvider(siswaId));
+    final siswa = hasil.value;
     if (siswa == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const NeoKeadaan.kosong(judul: 'Siswa tidak ditemukan'),
+        body: hasil.hasValue
+            ? const NeoKeadaan.kosong(judul: 'Siswa tidak ditemukan')
+            : NeoAsync(
+                nilai: hasil,
+                onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+                isi: (_) => const SizedBox(),
+              ),
       );
     }
 
     final t = siswa.tagihan;
     final teks = Theme.of(context).textTheme;
-    final status = t.status(hariIniContoh);
+    final status = t.status(ref.watch(hariIniProvider));
+    final tahunAjaran = ref.watch(aturanProvider).value?.tahunAjaran ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -106,7 +115,7 @@ class SiswaDetailPage extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'TAGIHAN ${DataContoh.tahunAjaran}',
+                        'TAGIHAN $tahunAjaran',
                         style: teks.labelMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1,

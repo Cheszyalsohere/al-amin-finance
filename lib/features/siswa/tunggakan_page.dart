@@ -10,16 +10,32 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../../core/widgets/neo_status.dart';
+import 'siswa_providers.dart';
 
 class TunggakanPage extends ConsumerWidget {
   const TunggakanPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final r = ringkasanContoh(ref);
+    final hariIni = ref.watch(hariIniProvider);
+    final batas = ref.watch(aturanProvider).value?.batasCicilan;
+    final hasil = ref.watch(ringkasanBulanIniProvider);
+    final r = hasil.value;
+    if (r == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Tunggakan')),
+        body: NeoAsync(
+          nilai: hasil,
+          onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+          isi: (_) => const SizedBox(),
+        ),
+      );
+    }
     final daftar = r.menunggak;
     final teks = Theme.of(context).textTheme;
-    final sisaHari = DateTime(2026, 12, 31).difference(hariIniContoh).inDays;
+    final sisaHari = batas
+        ?.difference(DateTime(hariIni.year, hariIni.month, hariIni.day))
+        .inDays;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Tunggakan')),
@@ -47,8 +63,14 @@ class TunggakanPage extends ConsumerWidget {
                     Expanded(
                       child: NeoStatistik(
                         label: 'Batas lunas',
-                        nilai: '$sisaHari hari',
-                        keterangan: 'sampai 31 Des',
+                        nilai: switch (sisaHari) {
+                          null => '-',
+                          < 0 => 'Lewat',
+                          final h => '$h hari',
+                        },
+                        keterangan: batas == null
+                            ? null
+                            : 'sampai ${tanggal(batas)}',
                         warna: Neo.kuning,
                         ikon: Icons.event_outlined,
                       ),
@@ -89,7 +111,7 @@ class TunggakanPage extends ConsumerWidget {
                                 ),
                               ),
                             ),
-                            NeoStatus(s.tagihan.status(hariIniContoh)),
+                            NeoStatus(s.tagihan.status(hariIni)),
                           ],
                         ),
                         const SizedBox(height: 10),
