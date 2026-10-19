@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -11,35 +11,32 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_input.dart';
 import '../../core/widgets/neo_status.dart';
 import '../siswa/siswa.dart';
+import '../siswa/siswa_providers.dart';
+import '../siswa/siswa_repository.dart';
 
-class CatatPembayaranPage extends StatefulWidget {
+class CatatPembayaranPage extends ConsumerStatefulWidget {
   const CatatPembayaranPage({super.key, this.siswaId});
 
   final String? siswaId;
 
   @override
-  State<CatatPembayaranPage> createState() => _CatatPembayaranPageState();
+  ConsumerState<CatatPembayaranPage> createState() =>
+      _CatatPembayaranPageState();
 }
 
-class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
+class _CatatPembayaranPageState extends ConsumerState<CatatPembayaranPage> {
   final _formKey = GlobalKey<FormState>();
   final _nominal = TextEditingController();
-  Siswa? _siswa;
+  final _keterangan = TextEditingController();
+  late String? _siswaId = widget.siswaId;
   Metode _metode = Metode.tunai;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.siswaId != null) {
-      _siswa = DataContoh.siswa
-          .where((s) => s.id == widget.siswaId)
-          .firstOrNull;
-    }
-  }
+  bool _menyimpan = false;
+  String? _galat;
 
   @override
   void dispose() {
     _nominal.dispose();
+    _keterangan.dispose();
     super.dispose();
   }
 
@@ -62,30 +59,45 @@ class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
     );
     if (terpilih != null) {
       setState(() {
-        _siswa = terpilih;
+        _siswaId = terpilih.id;
         _nominal.clear();
+        _galat = null;
       });
     }
   }
 
-  void _simpan() {
-    final siswa = _siswa;
-    if (siswa == null || !_formKey.currentState!.validate()) return;
+  Future<void> _simpan(Siswa siswa) async {
+    if (!_formKey.currentState!.validate()) return;
 
-    final baru = Pembayaran(
-      id: 'baru',
-      tanggal: DateTime.now(),
-      jumlah: FormatRupiah.baca(_nominal.text)!,
-      metode: _metode,
-      noKuitansi: 'KW/2026/10/0999',
-    );
-    aksiContoh(context, 'Pembayaran dicatat');
-    context.pushReplacement(Rute.kuitansi(siswa.id, baru.id), extra: baru);
+    setState(() {
+      _menyimpan = true;
+      _galat = null;
+    });
+
+    try {
+      final baru = await ref
+          .read(siswaRepositoryProvider)
+          .catatPembayaran(
+            tagihanId: siswa.tagihan.id,
+            jumlah: FormatRupiah.baca(_nominal.text)!,
+            metode: _metode,
+            keterangan: _keterangan.text,
+          );
+      ref.invalidate(daftarSiswaProvider);
+      if (!mounted) return;
+      context.pushReplacement(Rute.kuitansi(siswa.id, baru.id), extra: baru);
+    } on GagalSimpan catch (e) {
+      if (mounted) setState(() => _galat = e.pesan);
+    } finally {
+      if (mounted) setState(() => _menyimpan = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final siswa = _siswa;
+    final id = _siswaId;
+    final siswa = id == null ? null : ref.watch(siswaProvider(id)).value;
+    final hariIni = ref.watch(hariIniProvider);
     final teks = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -95,8 +107,15 @@ class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
           child: NeoTombol(
             warna: Neo.hijau,
-            onPressed: siswa == null ? null : _simpan,
-            child: const Text('Simpan & buat kuitansi'),
+            onPressed: siswa == null || siswa.tagihan.sisa == 0 || _menyimpan
+                ? null
+                : () => _simpan(siswa),
+            child: _menyimpan
+                ? const SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  )
+                : const Text('Simpan & buat kuitansi'),
           ),
         ),
       ),
@@ -121,7 +140,7 @@ class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
                 depan: NeoInisial(nama: siswa.nama),
                 judul: siswa.nama,
                 subjudul: '${siswa.program.label} · Kelas ${siswa.kelas}',
-                belakang: NeoStatus(siswa.tagihan.status(hariIniContoh)),
+                belakang: NeoStatus(siswa.tagihan.status(hariIni)),
               ),
             if (siswa != null) ...[
               const SizedBox(height: 16),
@@ -208,10 +227,25 @@ class _CatatPembayaranPageState extends State<CatatPembayaranPage> {
               ],
               const SizedBox(height: 16),
               TextFormField(
+                controller: _keterangan,
                 decoration: const InputDecoration(
                   labelText: 'Keterangan (opsional)',
                 ),
               ),
+              if (_galat != null) ...[
+                const SizedBox(height: 16),
+                NeoKotak(
+                  warna: Neo.merah,
+                  geser: const Offset(2, 2),
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    _galat!,
+                    style: teks.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ],
         ),
@@ -242,19 +276,19 @@ class _Cepat extends StatelessWidget {
   }
 }
 
-class _PemilihSiswa extends StatefulWidget {
+class _PemilihSiswa extends ConsumerStatefulWidget {
   const _PemilihSiswa();
 
   @override
-  State<_PemilihSiswa> createState() => _PemilihSiswaState();
+  ConsumerState<_PemilihSiswa> createState() => _PemilihSiswaState();
 }
 
-class _PemilihSiswaState extends State<_PemilihSiswa> {
+class _PemilihSiswaState extends ConsumerState<_PemilihSiswa> {
   String _cari = '';
 
   @override
   Widget build(BuildContext context) {
-    final daftar = DataContoh.siswa
+    final daftar = (ref.watch(daftarSiswaProvider).value ?? const <Siswa>[])
         .where((s) => s.tagihan.sisa > 0)
         .where((s) => s.nama.toLowerCase().contains(_cari.toLowerCase()))
         .toList();

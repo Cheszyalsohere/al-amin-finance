@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../siswa/siswa.dart';
+import '../siswa/siswa_providers.dart';
 
-class KuitansiPage extends StatelessWidget {
+class KuitansiPage extends ConsumerWidget {
   const KuitansiPage({
     super.key,
     required this.siswaId,
@@ -24,8 +25,19 @@ class KuitansiPage extends StatelessWidget {
   final Pembayaran? pembayaranBaru;
 
   @override
-  Widget build(BuildContext context) {
-    final siswa = DataContoh.siswa.where((s) => s.id == siswaId).firstOrNull;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasil = ref.watch(siswaProvider(siswaId));
+    if (!hasil.hasValue) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Kuitansi')),
+        body: NeoAsync(
+          nilai: hasil,
+          onCobaLagi: () => ref.invalidate(daftarSiswaProvider),
+          isi: (_) => const SizedBox(),
+        ),
+      );
+    }
+    final siswa = hasil.value;
     final bayar =
         pembayaranBaru ??
         siswa?.tagihan.pembayaran
