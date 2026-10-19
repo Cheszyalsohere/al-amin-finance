@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/env.dart';
 import '../features/kas/kategori_provider.dart';
 
 import 'data_contoh.dart';
@@ -21,5 +22,13 @@ Ringkasan ringkasanContoh(WidgetRef ref, [DateTime? bulan]) => Ringkasan(
 void aksiContoh(BuildContext context, String pesan) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text('$pesan (contoh, belum tersimpan)')));
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          Env.pratinjau
+              ? '$pesan (contoh, belum tersimpan)'
+              : '$pesan: segera hadir',
+        ),
+      ),
+    );
 }

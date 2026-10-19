@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../env.dart';
 import '../theme.dart';
 import 'neo.dart';
 
@@ -88,6 +90,70 @@ class NeoMemuat extends StatelessWidget {
         child: SizedBox.square(
           dimension: 28,
           child: CircularProgressIndicator(strokeWidth: 3.5),
+        ),
+      ),
+    );
+  }
+}
+
+/// Menampilkan loading, galat (dengan tombol coba lagi), atau isi data.
+class NeoAsync<T> extends StatelessWidget {
+  const NeoAsync({
+    super.key,
+    required this.nilai,
+    required this.isi,
+    required this.onCobaLagi,
+  });
+
+  final AsyncValue<T> nilai;
+  final Widget Function(T data) isi;
+  final VoidCallback onCobaLagi;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (nilai) {
+      AsyncData(:final value) => isi(value),
+      AsyncError(:final error) => NeoKeadaan.galat(
+        pesan: '$error',
+        tombol: NeoTombol(
+          onPressed: onCobaLagi,
+          child: const Text('Coba lagi'),
+        ),
+      ),
+      _ => const NeoMemuat(),
+    };
+  }
+}
+
+/// Penanda bahwa layar ini masih memakai data contoh karena belum
+/// tersambung ke database. Tidak tampil di mode contoh.
+class NeoBelumTersambung extends StatelessWidget {
+  const NeoBelumTersambung({super.key, required this.pesan});
+
+  final String pesan;
+
+  @override
+  Widget build(BuildContext context) {
+    if (Env.pratinjau) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: NeoKotak(
+        warna: Neo.pink,
+        geser: const Offset(2, 2),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const Icon(Icons.construction_outlined, color: Neo.tinta),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                pesan,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
         ),
       ),
     );
