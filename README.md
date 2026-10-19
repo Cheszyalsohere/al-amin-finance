@@ -7,7 +7,7 @@ honor tentor, pengeluaran, dan laporan. Dibuat dengan Flutter + Supabase.
 
 - [x] Tahap 1: login owner/admin
 - [x] Tahap 2: desain tampilan semua layar (data contoh)
-- [ ] Tahap 3: siswa, tagihan, pembayaran, tunggakan
+- [x] Tahap 3: siswa, tagihan, pembayaran, tunggakan
 - [ ] Tahap 4: kuitansi PDF
 - [ ] Tahap 5: tentor, absensi foto, sesi, honor
 - [ ] Tahap 6: pengeluaran, gaji admin, laporan, export Excel
@@ -17,8 +17,12 @@ honor tentor, pengeluaran, dan laporan. Dibuat dengan Flutter + Supabase.
 
 1. **Buat project** di [supabase.com](https://supabase.com) dengan paket Free.
    Pilih region Singapore supaya lebih cepat dari Indonesia.
-2. **Jalankan SQL.** Buka **SQL Editor**, lalu tempel dan jalankan isi file
-   [`supabase/migrations/20261016000000_profiles_dan_peran.sql`](supabase/migrations/20261016000000_profiles_dan_peran.sql).
+2. **Jalankan SQL.** Buka **SQL Editor**, lalu tempel dan jalankan isi setiap
+   file di folder [`supabase/migrations`](supabase/migrations) **berurutan**
+   (dari nama file paling kecil), satu per satu:
+   - `20261016000000_profiles_dan_peran.sql`: akun owner/admin
+   - `20261019000000_siswa_tagihan_pembayaran.sql`: siswa, tagihan,
+     pembayaran, dan data awal tahun ajaran 2026/2027
 3. **Matikan pendaftaran publik.** Buka **Authentication → Sign In / Providers**,
    matikan **Allow new users to sign up**. Akun hanya dibuat oleh owner.
 4. **Buat akun.** Buka **Authentication → Users → Add user → Create new user**.
