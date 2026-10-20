@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../contoh/aksi_contoh.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
@@ -9,6 +8,8 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../siswa/siswa.dart';
 import '../siswa/siswa_providers.dart';
+import 'kuitansi_aksi.dart';
+import 'kuitansi_pdf.dart';
 
 class KuitansiPage extends ConsumerWidget {
   const KuitansiPage({
@@ -56,6 +57,11 @@ class KuitansiPage extends ConsumerWidget {
     final sudahTermasuk = t.pembayaran.any((p) => p.id == bayar.id);
     final dibayar = t.dibayar + (sudahTermasuk ? 0 : bayar.jumlah);
     final sisa = (t.total - dibayar).clamp(0, t.total);
+    final data = DataKuitansi(
+      siswa: siswa,
+      pembayaran: bayar,
+      totalDibayar: dibayar,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Kuitansi')),
@@ -67,7 +73,7 @@ class KuitansiPage extends ConsumerWidget {
               Expanded(
                 child: NeoTombol(
                   warna: Neo.putih,
-                  onPressed: () => aksiContoh(context, 'Simpan PDF'),
+                  onPressed: () => cetakKuitansi(context, ref, data),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -83,10 +89,7 @@ class KuitansiPage extends ConsumerWidget {
                 flex: 2,
                 child: NeoTombol(
                   warna: Neo.hijau,
-                  onPressed: () => aksiContoh(
-                    context,
-                    'Kirim kuitansi ke WhatsApp ${siswa.namaWali}',
-                  ),
+                  onPressed: () => bukaKirimKuitansi(context, ref, data),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

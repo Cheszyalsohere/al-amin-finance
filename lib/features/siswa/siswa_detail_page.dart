@@ -11,6 +11,8 @@ import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../../core/widgets/neo_status.dart';
 import 'siswa.dart';
+import '../../core/whatsapp.dart';
+import '../pembayaran/kuitansi_aksi.dart';
 import 'siswa_providers.dart';
 
 class SiswaDetailPage extends ConsumerWidget {
@@ -177,7 +179,13 @@ class SiswaDetailPage extends ConsumerWidget {
             belakang: NeoTombol(
               warna: Neo.hijau,
               padding: const EdgeInsets.all(10),
-              onPressed: () => aksiContoh(context, 'Buka WhatsApp wali'),
+              onPressed: () => kirimWhatsAppKeWali(
+                context,
+                siswa,
+                t.sisa > 0
+                    ? pesanPengingat(siswa)
+                    : 'Assalamualaikum ${siswa.namaWali}, ',
+              ),
               child: const Icon(Icons.chat_outlined, size: 20),
             ),
           ),

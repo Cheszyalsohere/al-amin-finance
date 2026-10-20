@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../contoh/aksi_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -10,6 +9,8 @@ import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
 import '../../core/widgets/neo_status.dart';
+import '../../core/whatsapp.dart';
+import '../pembayaran/kuitansi_aksi.dart';
 import 'siswa_providers.dart';
 
 class TunggakanPage extends ConsumerWidget {
@@ -125,9 +126,10 @@ class TunggakanPage extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 10,
                                 ),
-                                onPressed: () => aksiContoh(
+                                onPressed: () => kirimWhatsAppKeWali(
                                   context,
-                                  'Kirim pengingat WhatsApp ke ${s.namaWali}',
+                                  s,
+                                  pesanPengingat(s),
                                 ),
                                 child: const Row(
                                   mainAxisSize: MainAxisSize.min,
