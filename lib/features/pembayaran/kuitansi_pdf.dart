@@ -73,7 +73,7 @@ Future<Uint8List> buatKuitansiPdf(
             : [
                 pw.BoxShadow(
                   color: _tinta,
-                  offset: PdfPoint(bayangan, -bayangan),
+                  offset: PdfPoint(bayangan, bayangan),
                 ),
               ],
       ),
