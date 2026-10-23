@@ -23,6 +23,7 @@ import '../features/siswa/tunggakan_page.dart';
 import '../features/tentor/absen_page.dart';
 import '../features/tentor/bayar_honor_page.dart';
 import '../features/tentor/tentor_detail_page.dart';
+import '../features/tentor/tentor_form_page.dart';
 import '../features/tentor/tentor_page.dart';
 import 'shell.dart';
 
@@ -38,7 +39,9 @@ abstract final class Rute {
   static String kuitansi(String siswaId, String pembayaranId) =>
       '/kuitansi/$siswaId/$pembayaranId';
   static const tentor = '/tentor';
+  static const tambahTentor = '/tentor/tambah';
   static String detailTentor(String id) => '/tentor/$id';
+  static String ubahTentor(String id) => '/tentor/$id/ubah';
   static String absen([String? tentorId]) =>
       tentorId == null ? '/absen' : '/absen?tentor=$tentorId';
   static String honor(String tentorId) => '/honor/$tentorId';
@@ -108,9 +111,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: Rute.tentor,
                 builder: (_, _) => const TentorPage(),
                 routes: [
+                  layarPenuh('tambah', (_) => const TentorFormPage()),
                   layarPenuh(
                     ':id',
                     (s) => TentorDetailPage(tentorId: s.pathParameters['id']!),
+                  ),
+                  layarPenuh(
+                    ':id/ubah',
+                    (s) => TentorFormPage(tentorId: s.pathParameters['id']),
                   ),
                 ],
               ),
