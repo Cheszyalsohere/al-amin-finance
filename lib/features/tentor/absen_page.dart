@@ -1,53 +1,123 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'dart:typed_data';
 
-import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_input.dart';
+import '../../core/widgets/neo_keadaan.dart';
 import '../siswa/siswa.dart';
+import '../siswa/siswa_repository.dart';
+import 'foto_absen.dart';
 import 'foto_kehadiran.dart';
 import 'tentor.dart';
 import 'tentor_page.dart';
+import 'tentor_providers.dart';
 
-class AbsenPage extends StatefulWidget {
+class AbsenPage extends ConsumerStatefulWidget {
   const AbsenPage({super.key, this.tentorId});
 
   final String? tentorId;
 
   @override
-  State<AbsenPage> createState() => _AbsenPageState();
+  ConsumerState<AbsenPage> createState() => _AbsenPageState();
 }
 
-class _AbsenPageState extends State<AbsenPage> {
-  Tentor? _tentor;
+class _AbsenPageState extends ConsumerState<AbsenPage> {
+  late String? _tentorId = widget.tentorId;
+  Uint8List? _foto;
   DateTime? _waktuFoto;
   final List<Program> _sesi = [Program.sma];
+  bool _memotret = false;
+  bool _menyimpan = false;
+  String? _galat;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.tentorId != null) {
-      _tentor = DataContoh.tentor
-          .where((t) => t.id == widget.tentorId)
-          .firstOrNull;
+  Future<void> _ambilFoto(Tentor tentor) async {
+    setState(() {
+      _memotret = true;
+      _galat = null;
+    });
+    try {
+      // Hanya dari kamera, tidak dari galeri.
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 90,
+      );
+      if (file == null) return;
+
+      final repo = ref.read(tentorRepositoryProvider);
+      final waktu = await repo.waktuServer();
+      final foto = await olahFotoAbsen(await file.readAsBytes(), [
+        keAscii(tentor.nama),
+        keAscii('${tanggal(waktu)} - ${jam(waktu)} WIB'),
+        'Bimbel Al-Amin',
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _foto = foto;
+        _waktuFoto = waktu;
+      });
+    } on GagalSimpan catch (e) {
+      if (mounted) setState(() => _galat = e.pesan);
+    } on Exception {
+      if (mounted) {
+        setState(() => _galat = 'Gagal mengambil foto. Coba lagi.');
+      }
+    } finally {
+      if (mounted) setState(() => _memotret = false);
     }
   }
 
-  bool get _siap => _tentor != null && _waktuFoto != null && _sesi.isNotEmpty;
+  Future<void> _simpan(Tentor tentor) async {
+    final foto = _foto;
+    if (foto == null || _sesi.isEmpty) return;
 
-  void _simpan() {
-    aksiContoh(context, 'Kehadiran ${_tentor!.nama} dicatat');
-    context.pop();
+    setState(() {
+      _menyimpan = true;
+      _galat = null;
+    });
+    try {
+      final repo = ref.read(tentorRepositoryProvider);
+      final path = await repo.unggahFoto(tentor.id, foto);
+      await repo.catatKehadiran(
+        tentorId: tentor.id,
+        fotoPath: path,
+        sesi: [for (final p in _sesi) (program: p, mapel: tentor.mapel)],
+      );
+      segarkanDataTentor(ref);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'Kehadiran ${tentor.nama} tercatat (${_sesi.length} sesi).',
+            ),
+          ),
+        );
+      context.pop();
+    } on GagalSimpan catch (e) {
+      if (mounted) setState(() => _galat = e.pesan);
+    } finally {
+      if (mounted) setState(() => _menyimpan = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final teks = Theme.of(context).textTheme;
-    final tentor = _tentor;
+    final hasil = ref.watch(daftarTentorProvider);
+    final aktif = (hasil.value ?? const <Tentor>[])
+        .where((t) => t.aktif)
+        .toList();
+    final tentor = aktif.where((t) => t.id == _tentorId).firstOrNull;
+    final siap = tentor != null && _foto != null && _sesi.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Absen tentor')),
@@ -56,126 +126,177 @@ class _AbsenPageState extends State<AbsenPage> {
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
           child: NeoTombol(
             warna: Neo.hijau,
-            onPressed: _siap ? _simpan : null,
-            child: Text(
-              tentor == null || _waktuFoto == null
-                  ? 'Lengkapi langkah 1 & 2'
-                  : 'Simpan ${_sesi.length} sesi · '
-                        '${rupiah(_sesi.length * tentor.tarifPerSesi)}',
-            ),
+            onPressed: siap && !_menyimpan ? () => _simpan(tentor) : null,
+            child: _menyimpan
+                ? const SizedBox.square(
+                    dimension: 22,
+                    child: CircularProgressIndicator(strokeWidth: 3),
+                  )
+                : Text(
+                    tentor == null || _foto == null
+                        ? 'Lengkapi langkah 1 & 2'
+                        : 'Simpan ${_sesi.length} sesi · '
+                              '${rupiah(_sesi.length * tentor.tarifPerSesi)}',
+                  ),
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        children: [
-          const _Langkah(nomor: 1, judul: 'Pilih tentor'),
-          NeoPilihan<Tentor>(
-            pilihan: DataContoh.tentor,
-            terpilih: tentor,
-            label: (t) => t.nama.replaceFirst('Kak ', ''),
-            warna: Neo.biru,
-            onPilih: (t) => setState(() {
-              _tentor = t;
-              _waktuFoto = null;
-            }),
-          ),
-          const SizedBox(height: 28),
-          const _Langkah(nomor: 2, judul: 'Foto kehadiran (wajib)'),
-          if (tentor == null)
-            const NeoKotak(child: Text('Pilih tentor terlebih dahulu.'))
-          else if (_waktuFoto == null)
-            NeoTombol(
-              warna: Neo.kuning,
-              padding: const EdgeInsets.symmetric(vertical: 36),
-              onPressed: () => setState(() => _waktuFoto = DateTime.now()),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.photo_camera_outlined, size: 44),
-                  const SizedBox(height: 8),
-                  const Text('Buka kamera'),
-                  Text(
-                    'Hanya dari kamera, tidak bisa dari galeri',
-                    style: teks.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w500,
+      body: !hasil.hasValue
+          ? NeoAsync(
+              nilai: hasil,
+              onCobaLagi: () => segarkanDataTentor(ref),
+              isi: (_) => const SizedBox(),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+              children: [
+                const _Langkah(nomor: 1, judul: 'Pilih tentor'),
+                if (aktif.isEmpty)
+                  const NeoKotak(child: Text('Belum ada tentor aktif.'))
+                else
+                  NeoPilihan<String>(
+                    pilihan: [for (final t in aktif) t.id],
+                    terpilih: _tentorId,
+                    label: (id) => aktif
+                        .firstWhere((t) => t.id == id)
+                        .nama
+                        .replaceFirst(RegExp(r'^Kak\s+'), ''),
+                    warna: Neo.biru,
+                    onPilih: (id) => setState(() {
+                      _tentorId = id;
+                      _foto = null;
+                      _waktuFoto = null;
+                    }),
+                  ),
+                const SizedBox(height: 28),
+                const _Langkah(nomor: 2, judul: 'Foto kehadiran (wajib)'),
+                if (tentor == null)
+                  const NeoKotak(child: Text('Pilih tentor terlebih dahulu.'))
+                else if (_foto == null)
+                  NeoTombol(
+                    warna: Neo.kuning,
+                    padding: const EdgeInsets.symmetric(vertical: 36),
+                    onPressed: _memotret ? null : () => _ambilFoto(tentor),
+                    child: _memotret
+                        ? const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox.square(
+                                dimension: 32,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text('Memproses foto…'),
+                            ],
+                          )
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.photo_camera_outlined, size: 44),
+                              const SizedBox(height: 8),
+                              const Text('Buka kamera'),
+                              Text(
+                                'Hanya dari kamera, tidak bisa dari galeri',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                  )
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: SizedBox(
+                          width: 220,
+                          child: FotoKehadiran(
+                            waktu: _waktuFoto!,
+                            nama: tentor.nama,
+                            warna: warnaTentor(tentor),
+                            bytes: _foto,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: _menyimpan || _memotret
+                            ? null
+                            : () => _ambilFoto(tentor),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Foto ulang'),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 28),
+                const _Langkah(nomor: 3, judul: 'Sesi yang diajar hari ini'),
+                for (final (i, program) in _sesi.indexed) ...[
+                  NeoKotak(
+                    padding: const EdgeInsets.all(12),
+                    geser: const Offset(3, 3),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Sesi ${i + 1}',
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: NeoPilihan<Program>(
+                            pilihan: Program.values,
+                            terpilih: program,
+                            label: (p) => p.label,
+                            onPilih: (p) => setState(() => _sesi[i] = p),
+                          ),
+                        ),
+                        if (_sesi.length > 1)
+                          IconButton(
+                            tooltip: 'Hapus sesi',
+                            icon: const Icon(Icons.close),
+                            onPressed: () => setState(() => _sesi.removeAt(i)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                NeoTombol(
+                  warna: Neo.putih,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  onPressed: () => setState(() => _sesi.add(_sesi.last)),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add),
+                      SizedBox(width: 6),
+                      Text('Sesi'),
+                    ],
+                  ),
+                ),
+                if (tentor != null) ...[
+                  const SizedBox(height: 16),
+                  NeoBarisNilai('Mapel', tentor.mapel),
+                  NeoBarisNilai('Tarif per sesi', rupiah(tentor.tarifPerSesi)),
+                ],
+                if (_galat != null) ...[
+                  const SizedBox(height: 16),
+                  NeoKotak(
+                    warna: Neo.merah,
+                    geser: const Offset(2, 2),
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      _galat!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: SizedBox(
-                    width: 220,
-                    child: FotoKehadiran(
-                      waktu: _waktuFoto!,
-                      nama: tentor.nama,
-                      warna: warnaTentor(tentor),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () => setState(() => _waktuFoto = DateTime.now()),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Foto ulang'),
-                ),
               ],
             ),
-          const SizedBox(height: 28),
-          const _Langkah(nomor: 3, judul: 'Sesi yang diajar hari ini'),
-          for (final (i, program) in _sesi.indexed) ...[
-            NeoKotak(
-              padding: const EdgeInsets.all(12),
-              geser: const Offset(3, 3),
-              child: Row(
-                children: [
-                  Text(
-                    'Sesi ${i + 1}',
-                    style: teks.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: NeoPilihan<Program>(
-                      pilihan: Program.values,
-                      terpilih: program,
-                      label: (p) => p.label,
-                      onPilih: (p) => setState(() => _sesi[i] = p),
-                    ),
-                  ),
-                  if (_sesi.length > 1)
-                    IconButton(
-                      tooltip: 'Hapus sesi',
-                      icon: const Icon(Icons.close),
-                      onPressed: () => setState(() => _sesi.removeAt(i)),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
-          NeoTombol(
-            warna: Neo.putih,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            onPressed: () => setState(() => _sesi.add(_sesi.last)),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [Icon(Icons.add), SizedBox(width: 6), Text('Sesi')],
-            ),
-          ),
-          if (tentor != null) ...[
-            const SizedBox(height: 16),
-            NeoBarisNilai('Mapel', tentor.mapel),
-            NeoBarisNilai('Tarif per sesi', rupiah(tentor.tarifPerSesi)),
-          ],
-        ],
-      ),
     );
   }
 }
