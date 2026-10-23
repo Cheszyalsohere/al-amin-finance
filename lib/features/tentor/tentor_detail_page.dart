@@ -1,51 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../contoh/aksi_contoh.dart';
-import '../../contoh/data_contoh.dart';
 import '../../core/format.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/widgets/neo.dart';
 import '../../core/widgets/neo_daftar.dart';
 import '../../core/widgets/neo_keadaan.dart';
+import '../auth/auth_providers.dart';
 import '../siswa/siswa.dart';
 import 'foto_kehadiran.dart';
+import 'tentor.dart';
 import 'tentor_page.dart';
+import 'tentor_providers.dart';
 
-class TentorDetailPage extends StatelessWidget {
+class TentorDetailPage extends ConsumerWidget {
   const TentorDetailPage({super.key, required this.tentorId});
 
   final String tentorId;
 
   @override
-  Widget build(BuildContext context) {
-    final tentor = DataContoh.tentor.where((t) => t.id == tentorId).firstOrNull;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasil = ref.watch(tentorProvider(tentorId));
+    final tentor = hasil.value;
     if (tentor == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const NeoKeadaan.kosong(judul: 'Tentor tidak ditemukan'),
+        body: hasil.hasValue
+            ? const NeoKeadaan.kosong(judul: 'Tentor tidak ditemukan')
+            : NeoAsync(
+                nilai: hasil,
+                onCobaLagi: () => segarkanDataTentor(ref),
+                isi: (_) => const SizedBox(),
+              ),
       );
     }
+    final bulan = ref.watch(bulanIniProvider);
+    final owner = ref.watch(profilProvider).value?.isOwner ?? false;
 
     final teks = Theme.of(context).textTheme;
     final warna = warnaTentor(tentor);
-    final hadir = kehadiranBulan(tentor.id, hariIniContoh).reversed.toList();
+    final hadir =
+        (ref.watch(kehadiranBulanProvider(bulan)).value ?? const <Kehadiran>[])
+            .where((k) => k.tentorId == tentor.id)
+            .toList()
+            .reversed
+            .toList();
     final sesi = hadir.fold(0, (a, k) => a + k.sesi.length);
     final honor = hadir.fold(0, (a, k) => a + k.honor);
-    final riwayat = DataContoh.riwayatHonor
-        .where((h) => h.tentorId == tentor.id)
-        .toList();
+    final riwayat =
+        ref.watch(riwayatHonorProvider(tentor.id)).value ??
+        const <PembayaranHonor>[];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail tentor'),
         actions: [
-          IconButton(
-            tooltip: 'Ubah tarif',
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () => aksiContoh(context, 'Ubah data & tarif tentor'),
-          ),
+          if (owner)
+            IconButton(
+              tooltip: 'Ubah data & tarif',
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () => context.push(Rute.ubahTentor(tentor.id)),
+            ),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -117,7 +134,7 @@ class TentorDetailPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          NeoBagian(judul: 'Kehadiran ${bulanTahun(hariIniContoh)}'),
+          NeoBagian(judul: 'Kehadiran ${bulanTahun(bulan)}'),
           if (hadir.isEmpty)
             const NeoKotak(child: Text('Belum ada kehadiran bulan ini.')),
           for (final k in hadir) ...[
