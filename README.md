@@ -23,6 +23,8 @@ honor tentor, pengeluaran, dan laporan. Dibuat dengan Flutter + Supabase.
    - `20261016000000_profiles_dan_peran.sql`: akun owner/admin
    - `20261019000000_siswa_tagihan_pembayaran.sql`: siswa, tagihan,
      pembayaran, dan data awal tahun ajaran 2026/2027
+   - `20261023000000_tentor_kehadiran_honor.sql`: tentor, absensi foto,
+     sesi mengajar, honor, dan bucket foto `kehadiran`
 3. **Matikan pendaftaran publik.** Buka **Authentication → Sign In / Providers**,
    matikan **Allow new users to sign up**. Akun hanya dibuat oleh owner.
 4. **Buat akun.** Buka **Authentication → Users → Add user → Create new user**.
